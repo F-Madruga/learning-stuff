@@ -1,0 +1,57 @@
+<body>
+  <div id="root"></div>
+  <script src="https://unpkg.com/react@16.12.0/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@16.12.0/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.8.3/babel.js"></script>
+  <script type="text/babel">
+    const rootElement = document.getElementById("root");
+
+    function Child() {
+      const [count, setCount] = React.useState(() => 0);
+
+      React.useEffect(() => {}, [count]);
+
+      const element = (
+        <button onClick={() => setCount((previousCount) => previousCount + 1)}>
+          {count}
+        </button>
+      );
+
+      return element;
+    }
+
+    function App() {
+      const [showChild, setShowChild] = React.useState(() => false);
+
+      React.useEffect(() => {}, [showChild]);
+
+      const element = (
+        <>
+          <label>
+            <input
+              type="checkbox"
+              checked={showChild}
+              onChange={(e) => setShowChild(e.target.checked)}
+            />{" "}
+            show child
+          </label>
+          <div
+            style={{
+              padding: 10,
+              margin: 10,
+              height: 30,
+              width: 30,
+              border: "solid",
+            }}
+          >
+            {showChild ? <Child /> : null}
+          </div>
+        </>
+      );
+
+      return element;
+    }
+
+    ReactDOM.render(<App />, rootElement);
+  </script>
+</body>
