@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo-deployment
+  labels:
+    app: mongo # define just a deployment label
+spec:
+  replicas: 1
+  selector:
+    matchLabels: # defines which pods belong to this deployment
+      app: mongo
+  template:
+    metadata:
+      labels:
+        app: mongo # specifies that all this pods will have this label
+    spec:
+      containers:  # This specifies each pod
+      - name: mongodb
+        image: mongo:5.0
+        ports:
+        - containerPort: 27017
+        env:
+        - name: MONGO_INITDB_ROOT_USERNAME
+          valueFrom:
+            secretKeyRef: # we are getting this values from the previous defined mongo secret
+              name: mongo-secret
+              key: mongo-user
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mongo-secret # we are getting this values from the previous defined mongo secret
+              key: mongo-password  
+---
+apiVersion: v1 # here we are defining the services for the pods from the deployment
+kind: Service
+metadata:
+  name: mongo-service
+spec:
+  selector:
+    app: mongo
+  ports:
+    - protocol: TCP
+      port: 27017
+      targetPort: 27017

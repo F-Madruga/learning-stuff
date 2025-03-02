@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webapp-deployment
+  labels:
+    app: webapp # define just a deployment label
+spec:
+  replicas: 1
+  selector:
+    matchLabels: # defines which pods belong to this deployment
+      app: webapp
+  template:
+    metadata:
+      labels:
+        app: webapp # specifies that all this pods will have this label
+    spec:
+      # This specifies each pod
+      containers:
+      - name: webapp
+        image: nanajanashia/k8s-demo-app:v1.0 # just a public demo app
+        ports:
+        - containerPort: 3000
+        env:
+        - name: USER_NAME
+          valueFrom:
+            secretKeyRef: # we are getting this values from the previous defined mongo secret
+              name: mongo-secret
+              key: mongo-user
+        - name: USER_PWD
+          valueFrom:
+            secretKeyRef: # we are getting this values from the previous defined mongo secret
+              name: mongo-secret
+              key: mongo-password
+        - name: DB_URL
+          valueFrom:
+            configMapKeyRef: # we are getting this values from the previous defined mongo configMap
+              name: mongo-config
+              key: mongo-url
+---
+apiVersion: v1 # here we are defining the services for the pods from the deployment
+kind: Service
+metadata:
+  name: webapp-service
+spec:
+  type: NodePort # makes the service external
+  selector:
+    app: webapp
+  ports:
+    - protocol: TCP
+      port: 3000 # port that the service exposes the pods
+      targetPort: 3000 # port of each pod
+      nodePort: 30000 # port that externally expose the pod (30000-32767)
